@@ -351,7 +351,7 @@
             <div class="logo">WorkSync</div>
             <div class="user-info">
                 <div class="avatar">TB</div>
-                <div class="username">Tanmay Borhade</div>
+                <div  class="username"><p id="username" ></p></div>
                 <button class="logout-btn" onclick="handleLogout()">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </button>
@@ -370,20 +370,20 @@
             <div class="upload-area" id="drop-area">
                 <i class="fas fa-cloud-upload-alt upload-icon"></i>
                 <p class="upload-instructions">Drag & drop your file here, or</p>
-                <input type="file" id="file-input" class="file-input">
-                <button class="browse-btn" onclick="document.getElementById('file-input').click()">Browse Files</button>
+                <input type="file" id="file-input" class="file-input" onchange="displayFilename()">
+                <button class="browse-btn" onclick="browse()" >Browse Files</button>
             </div>
 
             <div class="uploaded-file">
                 <i class="fas fa-file-pdf"></i>
                 <div class="file-info">
-                    <div class="file-name">Project_Report_v1.pdf</div>
+                    <div class="file-name" id="file-name"></div>
                     <div class="file-size">2.4 MB</div>
                 </div>
                 <i class="fas fa-times remove-file"></i>
             </div>
-
-            <button class="submit-btn">Submit Assignment</button>
+            <div><p id="note" ></p></div>
+            <button type="submit" class="submit-btn" id="submit-assignment" onclick="submitAssignment()" >Submit Assignment</button>
         </div>
 
         <div class="content-section peer-review-section">
@@ -467,6 +467,58 @@
     </div>
 
     <script>
+
+        const username = localStorage.getItem('username');
+        const accessToken =  localStorage.getItem('accessToken');
+        // console.log('accesstoken: '+accessToken)
+        document.getElementById('username').innerHTML=username
+
+
+        function browse(){
+            document.getElementById('file-input').click()
+
+        }
+
+        async function displayFilename(){
+            document.getElementById('file-name').innerHTML= document.getElementById('file-input').files[0].name;
+        }
+
+
+        async function submitAssignment(){
+            const fileInput = document.getElementById('file-input')
+            const file = fileInput.files[0]
+    
+            if(!file){
+                alert('Please select an image file');
+                return
+            }
+    
+            const formData = new FormData();
+            formData.append('image',file)
+    
+            try {
+                const response = await fetch('http://localhost:3000/api/image/upload', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        // DO NOT set 'Content-Type': 'multipart/form-data' manually — browser will set it with proper boundary
+                        'Authorization': 'Bearer ' + localStorage.getItem('accessToken')
+                    }
+                });
+    
+                const result = await response.json();
+                // console.log(result);
+                // alert(result.message)
+                await setTimeout(()=>{
+                    alert(result.message)
+                },3000)
+                // document.getElementById('note').innerHTML=result.message
+            } catch (error) {
+                console.error('Upload failed:', error);
+            }
+
+        }
+        
        
         document.querySelectorAll('.star').forEach(star => {
             star.addEventListener('click', function() {
