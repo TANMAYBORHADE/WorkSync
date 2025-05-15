@@ -8,7 +8,7 @@ const registerUser = async(req,res)=>{
     try{
         const {username, email, password, role} = req.body;
         const checkExistingUser = await User.findOne({$or:[{username},{email}]})
-        if(!checkExistingUser){
+        if(checkExistingUser){
             // console.log(checkExistingUser)
             return res.status(400).json({
                 success:false,
@@ -82,6 +82,7 @@ const loginUser = async(req,res)=>{
 
         res.status(200).json({
             success:true,
+            userType:user.role,
             message:'Logged in successfully.',
             accessToken
         })
